@@ -1,22 +1,21 @@
+// Desenha uma moldura na frase
+
 const readline = require('readline-sync');
-const frase = readline.question(`Digite uma frase: `);
-//** atl + 219 = '█' */
-const c = '█';
+const ch = '█';
 
-for(let i=0; i<frase.length + 4; i++) {
-    process.stdout.write(c);
-}
-console.log()
-for(let i=0; i<frase.length + 4; i++) {
-    process.stdout.write(c);
+function barra(qtde) {
+    for(let i=0; i<qtde + 4; i++) {
+        process.stdout.write(ch);
+    }
+    console.log();
 }
 
-console.log(`\n${c} ${frase} ${c}`);
+// Fora da função
 
-for(let i=0; i<frase.length + 4; i++) {
-    process.stdout.write(c);
-}
-console.log()
-for(let i=0; i<frase.length + 4; i++) {
-    process.stdout.write(c);
-}
+const frase = readline.question('\nFrase? ');
+
+barra(frase.length);
+barra(frase.length);
+console.log(`${ch} ${frase} ${ch}`);
+barra(frase.length);
+barra(frase.length);
