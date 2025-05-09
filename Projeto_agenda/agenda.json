@@ -1,0 +1,27 @@
+[
+  {
+    "nome": "Poliwag",
+    "email": "poliwag@pokemon.com",
+    "telefone": "(11) 98765-4321"
+  },
+  {
+    "nome": "Poliwag",
+    "email": "poliwag@pokemon.com",
+    "telefone": "(11) 98765-4321"
+  },
+  {
+    "nome": "Joao",
+    "email": "joao@gmail.com",
+    "telefone": "(22) 12345-4123"
+  },
+  {
+    "nome": "Joao",
+    "email": "jogao@yahoo.com",
+    "telefone": "(11) 12345-6789"
+  },
+  {
+    "nome": "giovanne",
+    "email": "giovanne@gmail.com",
+    "telefone": "(11) 1234-1234"
+  }
+]

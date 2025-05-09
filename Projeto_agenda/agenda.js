@@ -2,111 +2,179 @@
 
 const readline = require('readline-sync');
 
-const CLS = '\x1Bc';
-
-const agenda = [];
-
 const fs = require('fs');
 
-const contatos = {};
+let agenda = [];
 
-function menu() {
-    console.log(`** Agenda **\n`);
-    console.log(`1. Cadastrar usuários`);
-    console.log(`2. Mostrar dados de um usuário`);
-    console.log(`3. Listar todos nomes cadastrados`);
-    console.log(`4. Remover usuário`);
-    console.log(`5. Limpar toda agenda`);
-    console.log(`6. Gravar arquivo`);
-    console.log(`7. ler arquivo`);
-    console.log(`8. Sair\n`)
-    const opção = Number(readline.question(`Opcao: `));
+const CLS = '\x1Bc'; // Limpar tela
+
+function Menu() {
+    console.log(CLS);
+    console.log("** Agenda **\n");
+    console.log("1. Cadastrar usuário");
+    console.log("2. Mostrar dados de um usuário");
+    console.log("3. Mostrar todos os nomes");
+    console.log("4. Remover usuário");
+    console.log("5. Limpar agenda");
+    console.log("6. Gravar arquivo");
+    console.log("7. Ler arquivo");
+    console.log("8. Sair\n");
+
+    return Number(readline.question("Opcao: "));
+}
+
+function pausar() {
+    readline.question("\nPressione [Enter] para continuar\t");
+}
+
+function validarNome(nome, agenda) {
+    const nomeValido = /^[A-Za-zÀ-ú\s\-]+$/.test(nome);
+    if (!nomeValido) return false;
+
+    const nomeDuplicado = agenda.some(usuario => usuario.nome.toLowerCase() === nome.toLowerCase());
+    return !nomeDuplicado;
+}
+
+function validarEmail(email) {
+    const padrao = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return padrao.test(email);
+}
+
+function validarTelefone(telefone) {
+    const padrao = /^\(\d{2}\)\s?\d{4,5}-\d{4}$/;
+    return padrao.test(telefone);
+}
+
+function cadastrarUsuario() {
+    console.clear(CLS);
+    console.log("** Cadastrar usuário **\n");
+    const nome = readline.question("Nome: ");
+    if (!validarNome(nome, agenda)) {
+        console.log("\nNome inválido ou já cadastrado");
+        return pausar();
+    }
+
+    const email = readline.question("Email: ");
+    if (!validarEmail(email)) {
+        console.log("\nE-mail inválido faça com no exemplo ao lado => Ex: usuario@dominio.com");
+        return pausar();
+    }
+
+    const telefone = readline.question("Telefone (formato (11) 91234-5678): ");
+    if (!validarTelefone(telefone)) {
+        console.log("\nTelefone inválido use o formato (11) 91234-5678");
+        return pausar();
+    }
+
+    agenda.push({ nome, email, telefone });
+    console.log("\nUsuário cadastrado com sucesso");
+    pausar();
+}
+
+function mostrarUsuario() {
+    console.log(CLS);
+    console.log("** Mostrar dados de um usuário **\n");
+    const nome = readline.question("Informe o nome do usuário: ");
+    const usuario = agenda.find(user => user.nome === nome);
     console.log();
-    return opção;
+    if (usuario) {
+        console.log(`Nome: ${usuario.nome}`);
+        console.log(`Email: ${usuario.email}`);
+        console.log(`Telefone: ${usuario.telefone}`);
+    } else {
+        console.log("Usuário não encontrado");
+    }
+    pausar();
 }
 
-function adicionar() {
-    let nome = readline.question(`Nome: `);
-    let email = readline.question(`E-mail: `);
-    let telefone =readline.question(`Telefone: `);
-    return {nome, email, telefone};
+function listarNomes() {
+    console.log(CLS);
+    console.log("** Nomes cadastrados **\n");
+    if (agenda.length === 0) {
+        console.log("Nenhum nome cadastrado");
+    } else {
+        agenda.forEach(user => console.log(user.nome));
+    }
+    pausar();
 }
 
-function gravar_agenda() {
-    const file = 'contatos.json';
-    const conteudoGravar = JSON.stringify(contatos);
-    fs.writeFileSync(file, conteudoGravar);
+function removerUsuario() {
+    console.log(CLS);
+    console.log("** Remover usuário **\n");
+    const nome = readline.question("Nome do usuário que deseja remover: ");
+    const index = agenda.findIndex(user => user.nome === nome);
+    if (index !== -1) {
+        agenda.splice(index, 1);
+        console.log("\nUsuário removido com sucesso");
+    } else {
+        console.log("\nUsuário não encontrado");
+    }
+    pausar();
+}
+
+function limparAgenda() {
+    console.log(CLS);
+    console.log("** Limpar agenda **\n");
+    const confirmar = readline.question("Deseja limpar toda a agenda? (s/n): ");
+    if (confirmar.toLowerCase() === 's') {
+        agenda.length = 0;
+        console.log("\nAgenda limpa com sucesso");
+    } else {
+        console.log("\nCancelando...");
+    }
+    pausar();
+}
+
+function gravarArquivo() {
+    console.log(CLS);
+    console.log("** Gravar arquivo **\n");
+    fs.writeFileSync('agenda.json', JSON.stringify(agenda, null, 2));
+    console.log("Dados gravados com sucesso");
+    pausar();
+}
+
+function lerArquivo() {
+    console.log(CLS);
+    console.log("** Ler arquivo **\n");
+    if (fs.existsSync('agenda.json')) {
+        const dados = fs.readFileSync('agenda.json');
+        agenda = JSON.parse(dados);
+        console.log("Agenda carregada com sucesso");
+    } else {
+        console.log("Arquivo não encontrado");
+    }
+    pausar();
+}
+
+function sair() {
+    console.log(CLS);
+    console.log("** Fechando agenda **\n");
 }
 
 let opcao;
 do {
-    opcao = menu();
+    opcao = Menu();
+
     if (opcao === 1) {
-        console.log(`${CLS}`);
-        console.log(`** Cadastrar usuário **\n`);
-        let registro = adicionar();
-        agenda.push(registro);
-        console.log(`${CLS}`);
-    } 
-    
-    else if (opcao === 2) {
-        console.log(`${CLS}`);
-        console.log(`** Mostrar dados de um usuário **\n`);
-        const nome = readline.question(`Infome o nome do usuário para o fornecimentos dos dados: `);
-        console.log();
-        const usuario = agenda.find(user => user.nome === nome);
-        if (usuario) {
-            console.log(`Nome: ${usuario.nome}`);
-            console.log(`Email: ${usuario.email}`);
-            console.log(`Telefone: ${usuario.telefone}\n`)
-        } else {
-            console.log(`Usuário não encontrado. \n`);
-        }
-    } 
-    
-    else if (opcao === 3) {
-        console.log(`${CLS}`);
-        console.log(`** Nomes cadastrados **\n`);
-        const nomes = agenda.map(contato => contato.nome);
-        console.log(nomes,'\n');
-    } 
-    
-    else if (opcao === 4) {
-        console.log(`** Remover usuário **\n`);
-        const nome = readline.question(`Insira o nome do usuário que deseja remover: `);
-        console.log();
-        const usuario = agenda.find(user => user.nome === nome);
-        if (usuario) {
-            agenda.splice(0, 1);
-        } else {
-            console.log(`Usuário não encontrado. \n`);
-        }
-    } 
-    
-    else if (opcao === 5) {
-        console.log(`${CLS}`);
-        console.log(`** Limpar toda agenda **\n`);
-        const limpar = readline.question(`Deseja realmente limpar toda a agenda s/n ? `);
-        console.log();
-        if (limpar == 's') {
-            
-        } else {}
-    } 
-    
-    else if (opcao === 6) {
-        console.log(`** Gravar arquivo **\n`);
-        
-    } 
-    
-    else if (opcao === 7) {
-        console.log(`** ler arquivo **\n`);
-    } 
-    
-    else if (opcao === 8) {
-        console.log(`${CLS}`);
-        console.log(`** Fechando agenda **\n`);
+        cadastrarUsuario();
+    } else if (opcao === 2) {
+        mostrarUsuario();
+    } else if (opcao === 3) {
+        listarNomes();
+    } else if (opcao === 4) {
+        removerUsuario();
+    } else if (opcao === 5) {
+        limparAgenda();
+    } else if (opcao === 6) {
+        gravarArquivo();
+    } else if (opcao === 7) {
+        lerArquivo();
+    } else if (opcao === 8) {
+        sair();
     } else {
-        console.log(`${CLS}`);
-        console.log(`** Opção inválida tente novamente **\n`);
+        console.log(CLS);
+        console.log("** Opção inválida, tente novamente **");
+        pausar();
     }
-} while (opcao != 8);
+
+} while (opcao !== 8);
